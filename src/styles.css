@@ -1,0 +1,405 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+/* =============================================================
+   DESIGN TOKENS — Material 3 Typography Scale & 8px Grid System
+   ============================================================= */
+
+/* Typography Scale (Material 3) */
+:root {
+  /* Display/Headline sizes */
+  --text-display-xl: 3.5rem;    /* 56px - Hero titles */
+  --text-display-lg: 3rem;       /* 48px - Large display */
+  --text-display-md: 2.5rem;     /* 40px - Medium display */
+  --text-display-sm: 2.25rem;    /* 36px - Small display */
+  --text-headline-xl: 2rem;      /* 32px - Headline XL */
+  --text-headline-lg: 1.875rem; /* 30px - Headline LG */
+  --text-headline-md: 1.5rem;   /* 24px - Headline MD */
+  --text-headline-sm: 1.25rem;  /* 20px - Headline SM */
+
+  /* Body/Label sizes */
+  --text-xl: 1.25rem;           /* 20px - Extra large body */
+  --text-lg: 1.125rem;          /* 18px - Large body */
+  --text-md: 1rem;              /* 16px - Base body (accessibility minimum) */
+  --text-sm: 0.875rem;          /* 14px - Small body */
+  --text-xs: 0.75rem;           /* 12px - Extra small */
+  --text-2xs: 0.65rem;          /* 10.4px - Micro labels */
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.1;
+  --leading-snug: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+  --leading-loose: 1.75;
+
+  /* Letter Spacing */
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.03em;
+  --tracking-normal: -0.02em;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+  --tracking-caps: 0.12em;
+  --tracking-caps-lg: 0.15em;
+  --tracking-caps-xl: 0.2em;
+
+  /* Spacing Scale (8px Grid System) */
+  --space-1: 0.25rem;   /* 4px */
+  --space-1-5: 0.375rem; /* 6px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-2-5: 0.625rem; /* 10px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-3-5: 0.875rem; /* 14px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-7: 1.75rem;   /* 28px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-14: 3.5rem;   /* 56px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  --space-32: 8rem;     /* 128px */
+  --space-44: 11rem;    /* 176px */
+  --space-56: 14rem;    /* 224px */
+
+  /* Container widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1200px;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.25rem;  /* 20px */
+  --radius-3xl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;
+}
+
+/* Legacy rem conversions for backward compatibility */
+:root {
+  --text-micro: var(--text-2xs);  /* 0.65rem */
+  --text-label: var(--text-xs);    /* 0.75rem */
+  --text-caption: var(--text-sm);  /* 0.875rem */
+  --text-body: var(--text-md);     /* 1rem */
+  --text-subtitle: var(--text-lg); /* 1.125rem */
+}
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Map design tokens to Tailwind */
+  --text-display-xl: var(--text-display-xl);
+  --text-display-lg: var(--text-display-lg);
+  --text-display-md: var(--text-display-md);
+  --text-display-sm: var(--text-display-sm);
+  --text-headline-xl: var(--text-headline-xl);
+  --text-headline-lg: var(--text-headline-lg);
+  --text-headline-md: var(--text-headline-md);
+  --text-headline-sm: var(--text-headline-sm);
+  --text-xl: var(--text-xl);
+  --text-lg: var(--text-lg);
+  --text-md: var(--text-md);
+  --text-sm: var(--text-sm);
+  --text-xs: var(--text-xs);
+  --text-2xs: var(--text-2xs);
+}
+
+:root,
+.light,
+[data-theme='light'] {
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-hover: #f8fafc;
+  --surface-muted: #f1f5f9;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  --border-default: #e2e8f0;
+  --border-hover: #cbd5e1;
+  
+  --accent: #5e43fb;
+  --accent-foreground: #ffffff;
+  --accent-muted: rgba(94, 67, 251, 0.1);
+  
+  --status-success: #10b981;
+  --status-success-bg: #d1fae5;
+  --status-warning: #f59e0b;
+  --status-warning-bg: #fef3c7;
+  --status-error: #ef4444;
+  --status-error-bg: #fee2e2;
+
+  /* Legacy mapping */
+  --sea-ink: var(--text-primary);
+  --sea-ink-soft: var(--text-secondary);
+  --lagoon: var(--accent);
+  --lagoon-deep: var(--accent);
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --chip-bg: var(--surface);
+  --chip-line: var(--border-default);
+  --line: var(--border-default);
+  --primary-bg: #ffffff;
+}
+
+.dark,
+[data-theme='dark'] {
+  --background: #0a0a0a;
+  --surface: #141414;
+  --surface-hover: #1a1a1a;
+  --surface-muted: #1f1f1f;
+  
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  
+  --border-default: #27272a;
+  --border-hover: #3f3f46;
+  
+  --accent: #7c62ff;
+  --accent-foreground: #ffffff;
+  --accent-muted: rgba(124, 98, 255, 0.15);
+  
+  --status-success: #10b981;
+  --status-success-bg: rgba(16, 185, 129, 0.1);
+  --status-warning: #f59e0b;
+  --status-warning-bg: rgba(245, 158, 11, 0.1);
+  --status-error: #ef4444;
+  --status-error-bg: rgba(239, 68, 68, 0.1);
+
+  /* Legacy mapping */
+  --header-bg: rgba(10, 10, 10, 0.9);
+  --chip-bg: var(--surface);
+  --chip-line: var(--border-default);
+  --line: var(--border-default);
+  
+  /* Dark mode body background */
+  --primary-bg: #0a0a0a;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-muted: var(--surface-muted);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  
+  --color-border-default: var(--border-default);
+  --color-border-hover: var(--border-hover);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-muted: var(--accent-muted);
+  
+  --color-success: var(--status-success);
+  --color-success-bg: var(--status-success-bg);
+  --color-warning: var(--status-warning);
+  --color-warning-bg: var(--status-warning-bg);
+  --color-error: var(--status-error);
+  --color-error-bg: var(--status-error-bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  background-color: var(--primary-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove body background decorations in dark mode for cleaner look */
+.dark body::before,
+[data-theme='dark'] body::before {
+  display: none;
+}
+
+.dark body::after,
+[data-theme='dark'] body::after {
+  display: none;
+}
+
+a {
+  color: var(--lagoon-deep);
+  text-decoration-color: rgba(50, 143, 151, 0.4);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: #246f76;
+}
+
+code {
+  font-size: 0.9em;
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--surface-strong) 82%, white 18%);
+  border-radius: 7px;
+  padding: 2px 7px;
+}
+
+pre code {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+.page-wrap {
+  width: min(var(--container-lg), calc(100% - var(--space-8)));
+  margin-inline: auto;
+}
+
+.display-title {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-tighter);
+}
+
+.mono-all-caps {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps-xl);
+  font-size: var(--text-micro);
+  font-weight: 600;
+}
+
+.island-shell {
+  border: 1px solid var(--line);
+  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
+  box-shadow:
+    0 1px 0 var(--inset-glint) inset,
+    0 22px 44px rgba(30, 90, 72, 0.1),
+    0 6px 18px rgba(23, 58, 64, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.feature-card {
+  background: linear-gradient(
+    165deg,
+    color-mix(in oklab, var(--surface-strong) 93%, white 7%),
+    var(--surface)
+  );
+  box-shadow:
+    0 1px 0 var(--inset-glint) inset,
+    0 18px 34px rgba(30, 90, 72, 0.1),
+    0 4px 14px rgba(23, 58, 64, 0.06);
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--lagoon-deep) 35%, var(--line));
+}
+
+button,
+.island-shell,
+a {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.island-kicker {
+  letter-spacing: var(--tracking-caps-lg);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: var(--text-micro);
+  color: var(--kicker);
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--sea-ink-soft);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--lagoon), #7ed3bf);
+  transition: transform 170ms ease;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--sea-ink);
+}
+
+.nav-link:hover::after,
+.nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+@media (max-width: 640px) {
+  .nav-link::after {
+    bottom: -4px;
+  }
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  background: color-mix(in oklab, var(--header-bg) 84%, transparent 16%);
+}
+
+.rise-in {
+  animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}

@@ -9,7 +9,7 @@ import { Button } from '../../../components/ui/Button'
 
 const getNestedContent = (node: OutputNode | undefined, field: string): string => {
   if (!node) return ''
-  
+
   if (node.content?.content && typeof node.content.content === 'object') {
     const contentObj = node.content.content as Record<string, any>
     if (field in contentObj) {
@@ -54,14 +54,14 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
 
   // Only show tabs that actually have data
   const capabilityTabs = [
-    { name: 'Base Capabilities' as const, count: baseCapabilities.length },
+    { name: 'Shared Foundation' as const, count: baseCapabilities.length },
     { name: 'Capabilities' as const, count: capabilities.length },
     { name: 'Personas' as const, count: personas.length },
     { name: 'User Stories' as const, count: stories.length },
   ].filter((t) => t.count > 0)
 
   const [activeTab, setActiveTab] = useState<
-    'Capabilities' | 'Personas' | 'User Stories' | 'Base Capabilities'
+    'Capabilities' | 'Personas' | 'User Stories' | 'Shared Foundation'
   >(capabilityTabs[0]?.name ?? 'Capabilities')
 
   const highImpactCount = capabilities.filter(
@@ -95,7 +95,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
 
   // Find matching persona from UserPersona nodes
   const findPersonaData = (personaName: string) => {
-    return personas.find(p => 
+    return personas.find(p =>
       p.title?.toLowerCase().includes(personaName.toLowerCase()) ||
       personaName.toLowerCase().includes(p.title?.toLowerCase() || '')
     )
@@ -108,10 +108,18 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
   }
 
   // Sort capabilities by their numeric ID in ascending order
+  // const sortedCapabilities = [...capabilities].sort((a, b) => {
+  //   return extractIdNumber(a.id || '') - extractIdNumber(b.id || '')
+  // })
+  // const sortedCapabilities = [...capabilities].sort((a, b) => {
+  //   return Number(a.content?.priority || 0) - Number(b.content?.priority || 0)
+  // })
   const sortedCapabilities = [...capabilities].sort((a, b) => {
-    return extractIdNumber(a.id || '') - extractIdNumber(b.id || '')
+    return (
+      Number(getNestedContent(a, 'priority')) -
+      Number(getNestedContent(b, 'priority'))
+    )
   })
-
   // Sort stories by their numeric ID in ascending order
   const sortedStories = [...stories].sort((a, b) => {
     return extractIdNumber(a.id || '') - extractIdNumber(b.id || '')
@@ -225,7 +233,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <MetricCard value={baseCapabilities.length} label="Base Capabilities" sub={`${baseHighImpactCount} high impact`} />
+        <MetricCard value={baseCapabilities.length} label="Shared Foundation" sub={`${baseHighImpactCount} high impact`} />
         <MetricCard value={capabilities.length} label="Capabilities" sub="all grouped" />
         <MetricCard value={personas.length} label="Personas" sub="all confirmed" />
         <MetricCard value={stories.length} label="User Stories" sub="initial backlog" />
@@ -241,7 +249,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
       />
 
       {/* Tab Content */}
-      <div className="bg-surface border border-border-default rounded-3xl p-8 shadow-[0_1px_3px_rgba(15,15,15,0.05)]">
+      <div className="bg-surface border border-border-default rounded-3xl p-8 shadow[0_1px_3px_rgba(15,15,15,0.05)]">
         {activeTab === 'Capabilities' && (
           <div>
             <div className="text-[11px] font-bold uppercase tracking-widest text-text-muted mb-6">
@@ -277,10 +285,10 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
           </div>
         )}
 
-        {activeTab === 'Base Capabilities' && (
+        {activeTab === 'Shared Foundation' && (
           <div>
             <div className="text-[11px] font-bold uppercase tracking-widest text-text-muted mb-6">
-              BASE CAPABILITIES
+              Shared Foundation
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {baseCapabilities.length === 0 ? (
@@ -332,7 +340,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
                 const role = getNestedContent(persona, 'role')
                 const initial = (persona.title || '?').charAt(0).toUpperCase()
                 const storyCount = getStoryCount(persona)
-                
+
                 return (
                   <EditableNodeCard
                     key={persona.id || idx}
@@ -341,39 +349,39 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
                     onSaved={onContentUpdated}
                     editableKeys={['role', 'archetype', 'primary_goal', 'pain_point']}
                   >
-                  <div className="bg-background border border-border-default rounded-xl p-6 shadow-sm">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 bg-accent text-white rounded-full flex items-center justify-center font-bold text-[20px]">
-                        {initial}
-                      </div>
-                      <div>
-                        <div className="text-[16px] font-bold text-text-primary leading-tight">{persona.title}</div>
-                        <div className="text-[13px] text-text-secondary">{role}</div>
-                      </div>
-                    </div>
-                    <div className="text-[13px] text-accent italic mb-6">
-                      "{getNestedContent(persona, 'archetype') || 'key persona for the system'}"
-                    </div>
-                    <div className="flex items-center gap-2 mb-6">
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                        {storyCount} stories
-                      </span>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-1">Primary Goal</div>
-                        <div className="text-[13px] text-text-secondary leading-relaxed">
-                          {getNestedContent(persona, 'primary_goal') || 'Not specified'}
+                    <div className="bg-background border border-border-default rounded-xl p-6 shadow-sm">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 bg-accent text-white rounded-full flex items-center justify-center font-bold text-[20px]">
+                          {initial}
+                        </div>
+                        <div>
+                          <div className="text-[16px] font-bold text-text-primary leading-tight">{persona.title}</div>
+                          <div className="text-[13px] text-text-secondary">{role}</div>
                         </div>
                       </div>
-                      <div>
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-1">Pain Point</div>
-                        <div className="text-[13px] text-text-secondary leading-relaxed">
-                          {getNestedContent(persona, 'pain_point') || 'Not specified'}
+                      <div className="text-[13px] text-accent italic mb-6">
+                        "{getNestedContent(persona, 'archetype') || 'key persona for the system'}"
+                      </div>
+                      <div className="flex items-center gap-2 mb-6">
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                          {storyCount} stories
+                        </span>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-1">Primary Goal</div>
+                          <div className="text-[13px] text-text-secondary leading-relaxed">
+                            {getNestedContent(persona, 'primary_goal') || 'Not specified'}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-1">Pain Point</div>
+                          <div className="text-[13px] text-text-secondary leading-relaxed">
+                            {getNestedContent(persona, 'pain_point') || 'Not specified'}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
                   </EditableNodeCard>
                 )
               })}
@@ -384,7 +392,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
         {activeTab === 'User Stories' && (
           <div>
             <div className="text-[11px] font-bold uppercase tracking-widest text-text-muted mb-6">
-             USER STORIES
+              USER STORIES
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -405,7 +413,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
                     const iWant = getNestedContent(story, 'i_want') || getNestedContent(story, 'action') || ''
                     const soThat = getNestedContent(story, 'so_that') || getNestedContent(story, 'benefit') || 'must'
                     const priority = soThat.toLowerCase()
-                    
+
                     // Extract persona from capability field (e.g., "Ravi — IoT Field Technician")
                     const capability = getNestedContent(story, 'capability')
                     const personaData = getPersonaFromCapability(capability)
@@ -439,7 +447,7 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
                           <div className="text-[12px] text-text-secondary">{iWant}</div>
                         </td>
                         <td className="py-4 px-4">
-                          <div 
+                          <div
                             className="flex items-center gap-2 relative overflow-visible"
                             onMouseEnter={() => {
                               setHoveredPersona(personaName)
@@ -454,15 +462,15 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
                               {personaInitial}
                             </div>
                             <span className="text-[13px] text-text-secondary">{personaName}</span>
-                            
+
                             {/* Hover Tooltip */}
                             {hoveredPersona === personaName && hoveredStoryId === (story.id || idx) && (() => {
                               const personaNode = findPersonaData(personaName)
                               const role = getNestedContent(personaNode, 'role')
                               const archetype = getNestedContent(personaNode, 'archetype')
-                              
+
                               if (!role && !archetype) return null
-                              
+
                               return (
                                 <div className="absolute left-0 top-full mt-2 z-50 bg-surface border border-border-default rounded-xl p-4 shadow-lg min-w-50 overflow-hidden">
                                   <div className="flex items-center gap-2 mb-2">
@@ -487,11 +495,10 @@ export const CapabilitiesOutputRenderer: FC<{ outputs: OutputNode[]; onRegenerat
                           </div>
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <div className={`inline-flex px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded border ${
-                            priority === 'must' ? 'text-red-500 bg-red-500/10 border-red-500/20' :
+                          <div className={`inline-flex px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded border ${priority === 'must' ? 'text-red-500 bg-red-500/10 border-red-500/20' :
                             priority === 'should' ? 'text-amber-500 bg-amber-500/10 border-amber-500/20' :
-                            'text-green-500 bg-green-500/10 border-green-500/20'
-                          }`}>
+                              'text-green-500 bg-green-500/10 border-green-500/20'
+                            }`}>
                             {priority}
                           </div>
                         </td>

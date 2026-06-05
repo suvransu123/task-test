@@ -31,14 +31,14 @@ interface Message {
   role: 'user' | 'assistant' | 'system'
   created_at: string
   type?:
-    | 'text'
-    | 'document'
-    | 'status_'
-    | 'status'
-    | 'error'
-    | 'questions'
-    | 'insight'
-    | 'nodes'
+  | 'text'
+  | 'document'
+  | 'status_'
+  | 'status'
+  | 'error'
+  | 'questions'
+  | 'insight'
+  | 'nodes'
   document_data?: {
     document_name: string
     document_type: string
@@ -218,11 +218,10 @@ const DocumentPreviewPopup: React.FC<{
                   variant="unstyled"
                   key={idx}
                   onClick={() => setActiveIdx(idx)}
-                  className={`px-6 py-3 text-[10px] font-black uppercase tracking-widest whitespace-nowrap rounded-t-xl transition-all border-b-2 ${
-                    activeIdx === idx
-                      ? 'bg-surface text-accent border-[#5E43FB] shadow-[0_-4px_10px_-5px_rgba(94,67,251,0.1)]'
-                      : 'bg-transparent text-text-muted border-transparent hover:text-text-secondary hover:bg-surface-muted'
-                  }`}
+                  className={`px-6 py-3 text-[10px] font-black uppercase tracking-widest whitespace-nowrap rounded-t-xl transition-all border-b-2 ${activeIdx === idx
+                    ? 'bg-surface text-accent border-[#5E43FB] shadow-[0_-4px_10px_-5px_rgba(94,67,251,0.1)]'
+                    : 'bg-transparent text-text-muted border-transparent hover:text-text-secondary hover:bg-surface-muted'
+                    }`}
                 >
                   {d.document_name}
                 </Button>
@@ -359,11 +358,10 @@ const QuestionCard: React.FC<{
               variant="unstyled"
               key={idx}
               onClick={() => toggleOption(option)}
-              className={`w-full group flex items-center gap-4 p-4 rounded-2xl border transition-all text-left relative overflow-hidden ${
-                isSelected
-                  ? 'bg-surface text-text-primary border-transparent shadow-xl'
-                  : 'bg-surface/3 text-slate-300 border-white/5 hover:bg-surface/6 hover:border-white/10'
-              }`}
+              className={`w-full group flex items-center gap-4 p-4 rounded-2xl border transition-all text-left relative overflow-hidden ${isSelected
+                ? 'bg-surface text-text-primary border-transparent shadow-xl'
+                : 'bg-surface/3 text-slate-300 border-white/5 hover:bg-surface/6 hover:border-white/10'
+                }`}
             >
               {isSelected && (
                 <div className="absolute left-0 top-0 w-1.5 h-full bg-accent" />
@@ -482,11 +480,10 @@ const MessageBubble: React.FC<{
     return (
       <div className="flex flex-col items-center w-full my-6 animate-in fade-in duration-700">
         <div
-          className={`px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${
-            isError
-              ? 'bg-red-50 text-red-500 border-red-100'
-              : 'bg-slate-50 text-text-muted border-slate-100'
-          }`}
+          className={`px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${isError
+            ? 'bg-red-50 text-red-500 border-red-100'
+            : 'bg-slate-50 text-text-muted border-slate-100'
+            }`}
         >
           {isError ? (
             <span className="flex items-center gap-2">
@@ -558,11 +555,10 @@ const MessageBubble: React.FC<{
         </div>
       ) : (
         <div
-          className={`px-8 py-5 rounded-3xl max-w-[92%] text-[15px] leading-relaxed relative ${
-            isUser
-              ? 'bg-accent text-white rounded-br-none shadow-xl shadow-[#0F172A]/10'
-              : 'bg-surface-muted border border-border-default text-text-secondary rounded-bl-none font-bold'
-          }`}
+          className={`px-8 py-5 rounded-3xl max-w-[92%] text-[15px] leading-relaxed relative ${isUser
+            ? 'bg-accent text-white rounded-br-none shadow-xl shadow-[#0F172A]/10'
+            : 'bg-surface-muted border border-border-default text-text-secondary rounded-bl-none font-bold'
+            }`}
         >
           <div
             className={`prose prose-sm max-w-none font-bold ${isUser ? 'prose-invert text-white' : 'prose-slate text-text-secondary'}`}
@@ -807,10 +803,10 @@ export const ChatComponent = forwardRef<ChatComponentRef, ChatComponentProps>(
                 // Trigger graph refetch and content re-render
                 setIsAiThinking(false)
                 onValidateOutputReceived?.()
-                if(data.type === 'validate_output') {
+                if (data.type === 'validate_output') {
                   onRegenerateComplete?.()
                 }
-              } 
+              }
               else if (data.type === 'ai_response' && data.response) {
                 const newMsg: Message = {
                   id: Date.now(),
@@ -902,8 +898,8 @@ export const ChatComponent = forwardRef<ChatComponentRef, ChatComponentProps>(
                   setMessages((prev) => [
                     ...(isAi
                       ? prev.filter(
-                          (m) => m.type !== 'status_' && m.type !== 'status',
-                        )
+                        (m) => m.type !== 'status_' && m.type !== 'status',
+                      )
                       : prev),
                     newMsg,
                   ])
@@ -1038,22 +1034,20 @@ export const ChatComponent = forwardRef<ChatComponentRef, ChatComponentProps>(
             <span className="text-[9px] font-black text-text-muted uppercase tracking-[0.2em]">Intelligence</span>
             <div className="flex items-center gap-1.5">
               <div
-                className={`w-1.5 h-1.5 rounded-full ${
-                  connectionStatus === 'connected'
-                    ? 'bg-emerald-500 animate-pulse'
-                    : connectionStatus === 'connecting'
-                      ? 'bg-amber-400 animate-pulse'
-                      : 'bg-[#CBD5E1]'
-                }`}
+                className={`w-1.5 h-1.5 rounded-full ${connectionStatus === 'connected'
+                  ? 'bg-emerald-500 animate-pulse'
+                  : connectionStatus === 'connecting'
+                    ? 'bg-amber-400 animate-pulse'
+                    : 'bg-[#CBD5E1]'
+                  }`}
               />
               <span
-                className={`text-[10px] font-bold uppercase tracking-wider ${
-                  connectionStatus === 'connected'
-                    ? 'text-emerald-600'
-                    : connectionStatus === 'connecting'
-                      ? 'text-amber-500'
-                      : 'text-text-muted'
-                }`}
+                className={`text-[10px] font-bold uppercase tracking-wider ${connectionStatus === 'connected'
+                  ? 'text-emerald-600'
+                  : connectionStatus === 'connecting'
+                    ? 'text-amber-500'
+                    : 'text-text-muted'
+                  }`}
               >
                 {connectionStatus === 'connected'
                   ? 'Connected'
@@ -1063,9 +1057,9 @@ export const ChatComponent = forwardRef<ChatComponentRef, ChatComponentProps>(
               </span>
             </div>
           </div>
-</div>
+        </div>
 
- 
+
 
 
         {/* ── COPILOT Chat Section ── */}

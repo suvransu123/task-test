@@ -138,3 +138,12 @@ export interface ImpactAnalysisResult {
   stale_exports: string[]
   requires_regeneration: boolean
 }
+export interface FeaturesData{
+  id: number;
+  badge: string;
+  badgeColor: string;
+  icon: string;
+  title: string;
+  description:string;
+  preview:string;
+}

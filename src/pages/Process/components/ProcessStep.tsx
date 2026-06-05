@@ -9,6 +9,9 @@ export interface ProcessStepData {
   details: string[]
   visual: React.ReactNode
   isDark?: boolean
+  image?: string
+  imageClass?: string
+  containerClass?: string
 }
 
 interface ProcessStepProps {
@@ -58,10 +61,13 @@ export const ProcessStep: React.FC<ProcessStepProps> = ({
       </div>
 
       {/* ── Visual side ── */}
-      <div
-        className={`process-step-visual ${data.isDark ? 'process-step-visual--dark' : ''}`}
-      >
-        {data.visual}
+      <div className={`relative ${data.containerClass || 'bg-slate-900'} rounded-2xl pt-0 px-6 pb-0 overflow-hidden flex items-end justify-center group transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(99,102,241,0.15)]`}>
+
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 shadow-sm" />
+        <img
+          className={`relative mt-7 w-full aspect-video object-cover rounded-t-lg border border-white/10 shadow transition-all duration-700 ease-out group-hover:scale-[1.03] origin-bottom ${data.imageClass || ''}`}
+          src={data.image} alt={data.title}
+        />
       </div>
     </article>
   )

@@ -4,6 +4,7 @@ import { HeroSection } from './components/HeroSection'
 import { HowItWorksSection } from './components/HowItWorksSection'
 import { StatsSection } from './components/StatsSection'
 import { LandingFooter } from './components/LandingFooter'
+// import { Features } from '@/pages/Landing/components/Features'
 import './landing.css'
 
 /**
@@ -19,7 +20,9 @@ export const LandingPage: React.FC = () => {
       <main className="landing-main">
         <HeroSection />
         <HowItWorksSection />
+        {/* <Features /> */}
         <StatsSection />
+
       </main>
       <LandingFooter />
     </div>

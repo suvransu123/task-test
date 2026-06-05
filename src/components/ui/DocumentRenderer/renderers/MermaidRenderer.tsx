@@ -50,6 +50,8 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [isWheeling, setIsWheeling] = useState(false)
+  const wheelTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Zoom limits
   const MIN_SCALE = 0.25
@@ -209,6 +211,34 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
     setPosition({ x: 0, y: 0 })
   }, [chartTrimmed])
 
+//   useEffect(() => {
+//   const preventBrowserZoom = (e: WheelEvent) => {
+//     if (isFullscreen && e.ctrlKey) {
+//       e.preventDefault()
+//     }
+//   }
+
+//   document.addEventListener('wheel', preventBrowserZoom, {
+//     passive: false,
+//   })
+
+//   return () => {
+//     document.removeEventListener('wheel', preventBrowserZoom)
+//   }
+// }, [isFullscreen])
+// useEffect(() => {
+//   const testWheel = (e: WheelEvent) => {
+//     console.log('Wheel event detected')
+//     console.log('ctrlKey:', e.ctrlKey)
+//     console.log('deltaY:', e.deltaY)
+//   }
+
+//   window.addEventListener('wheel', testWheel, { passive: false })
+
+//   return () => {
+//     window.removeEventListener('wheel', testWheel)
+//   }
+// }, [])
   const handleRetry = () => {
     setRetryKey((prev) => prev + 1)
     if (onRetry) onRetry()
@@ -259,10 +289,10 @@ export const MermaidRenderer: React.FC<MermaidRendererProps> = ({
     return () => window.removeEventListener('keydown', handleEscape)
   }, [isFullscreen, closeFullscreen])
 
-  // Reserved for future inline panning feature
-// Reserved for future inline panning feature - intentionally unused but kept for potential future implementation
-// @ts-expect-error - reserved for future use
-const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
+  // Mouse down handler for inline panning
+  const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return // Only left click
+    e.preventDefault() // Prevent page scrolling
     e.stopPropagation()
     setIsDragging(true)
     setDragStart({
@@ -286,55 +316,81 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(false)
   }, [])
 
-  // Scroll to zoom (inline mode only)
+  // Scroll to zoom (inline and fullscreen modes)
   // Use non-passive event listener on the diagram container to properly prevent page scroll
   useEffect(() => {
-    const container = svgContainerRef.current?.parentElement
-    if (!container) return
+    const inlineContainer = svgContainerRef.current?.parentElement
+    const fullscreenContainer = fullscreenContentRef.current
+
+    // Global prevent default to stop the whole page from zooming when using trackpad
+    const globalZoomPreventer = (e: WheelEvent) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('wheel', globalZoomPreventer, { passive: false });
 
     // Create handler
     const handler = (e: WheelEvent) => {
       e.preventDefault()
       e.stopPropagation()
+
+      setIsWheeling(true);
+      if (wheelTimeoutRef.current) clearTimeout(wheelTimeoutRef.current);
+      wheelTimeoutRef.current = setTimeout(() => setIsWheeling(false), 200);
       
-      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
-      setScale((prev) => Math.min(Math.max(prev + delta, MIN_SCALE), MAX_SCALE))
+      if (e.ctrlKey) {
+        // Smooth zoom for trackpad pinch-to-zoom
+        const delta = e.deltaY * -0.01;
+        setScale((prev) => Math.min(Math.max(prev + delta, MIN_SCALE), MAX_SCALE));
+      } else {
+        // Standard mouse wheel / trackpad two-finger scroll -> pan the image
+        setPosition((prev) => ({
+          x: prev.x - e.deltaX,
+          y: prev.y - e.deltaY,
+        }));
+      }
     }
 
-    // Add as non-passive to allow preventDefault
-    container.addEventListener('wheel', handler, { passive: false })
+    if (inlineContainer) {
+      inlineContainer.addEventListener('wheel', handler, { passive: false })
+    }
+    if (fullscreenContainer) {
+      fullscreenContainer.addEventListener('wheel', handler, { passive: false })
+    }
 
     return () => {
-      container.removeEventListener('wheel', handler)
+      if (inlineContainer) {
+        inlineContainer.removeEventListener('wheel', handler)
+      }
+      if (fullscreenContainer) {
+        fullscreenContainer.removeEventListener('wheel', handler)
+      }
+      window.removeEventListener('wheel', globalZoomPreventer);
     }
-  }, [chartTrimmed])
+  }, [chartTrimmed, isFullscreen])
 
-  // Prevent page scrolling in inline mode
-  const handleInlineContainerMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 0) {
-      e.preventDefault()
-    }
-  }, [])
+  // (Removed handleInlineContainerMouseDown as it's replaced by handleInlineMouseDown)
 
   // Mouse event handlers for fullscreen drag mode
   const handleFullscreenMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!isHandMode || e.button !== 0) return
+    if (e.button !== 0) return
     e.preventDefault()
     setIsDragging(true)
     setDragStart({
       x: e.clientX - position.x,
       y: e.clientY - position.y,
     })
-  }, [isHandMode, position])
+  }, [position])
 
   const handleFullscreenMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !isHandMode) return
+    if (!isDragging) return
     e.preventDefault()
     setPosition({
       x: e.clientX - dragStart.x,
       y: e.clientY - dragStart.y,
     })
-  }, [isDragging, isHandMode, dragStart])
+  }, [isDragging, dragStart])
 
   const handleFullscreenMouseUp = useCallback(() => {
     setIsDragging(false)
@@ -352,11 +408,12 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
         isDragging ? 'cursor-grabbing' : scale > 1 ? 'cursor-grab' : ''
       }`}
       style={{ minHeight: '300px' }}
-      onMouseDown={handleInlineContainerMouseDown}
+      onMouseDown={handleInlineMouseDown}
       onMouseMove={handleInlineMouseMove}
       onMouseUp={handleInlineMouseUp}
       onMouseLeave={handleInlineMouseUp}
       onContextMenu={handleContextMenu}
+      onDragStart={(e) => e.preventDefault()}
     >
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full min-h-75">
@@ -369,7 +426,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transformOrigin: 'center center',
-            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+            transition: isDragging || isWheeling ? 'none' : 'transform 0.15s ease-out',
           }}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
@@ -379,7 +436,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
         </div>
       )}
     </div>
-  ), [svg, isLoading, scale, position, isDragging, handleInlineMouseMove, handleInlineMouseUp, handleInlineContainerMouseDown, handleContextMenu])
+  ), [svg, isLoading, scale, position, isDragging, isWheeling, handleInlineMouseMove, handleInlineMouseUp, handleInlineMouseDown, handleContextMenu])
 
   // Render fullscreen diagram content (with hand mode for drag)
   const renderFullscreenContent = useCallback(() => (
@@ -393,6 +450,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
       onMouseUp={handleFullscreenMouseUp}
       onMouseLeave={handleFullscreenMouseUp}
       onContextMenu={handleContextMenu}
+      onDragStart={(e) => e.preventDefault()}
     >
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
@@ -404,7 +462,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
           style={{
             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transformOrigin: 'center center',
-            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+            transition: isDragging || isWheeling ? 'none' : 'transform 0.15s ease-out',
           }}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
@@ -414,7 +472,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
         </div>
       )}
     </div>
-  ), [svg, isLoading, scale, position, isDragging, isHandMode, handleFullscreenMouseDown, handleFullscreenMouseMove, handleFullscreenMouseUp, handleContextMenu])
+  ), [svg, isLoading, scale, position, isDragging, isWheeling, isHandMode, handleFullscreenMouseDown, handleFullscreenMouseMove, handleFullscreenMouseUp, handleContextMenu])
 
   // Render zoom controls for inline mode
   const renderInlineZoomControls = useCallback(() => (
@@ -494,7 +552,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
       >
         <Maximize2 className="w-4 h-4" />
       </Button>
-      <div className="w-px h-4 bg-gray-300 mx-1" />
+{/*       <div className="w-px h-4 bg-gray-300 mx-1" />
       <Button
         variant="unstyled"
         onClick={toggleHandMode}
@@ -506,7 +564,7 @@ const handleInlineMouseDown = useCallback((e: React.MouseEvent) => {
         title={isHandMode ? 'Hand mode active - drag to move' : 'Enable hand mode to drag diagram'}
       >
         <Hand className="w-4 h-4" />
-      </Button>
+      </Button> */}
     </div>
   ), [scale, handleZoomIn, handleZoomOut, handleResetZoom, toggleHandMode, isHandMode])
 

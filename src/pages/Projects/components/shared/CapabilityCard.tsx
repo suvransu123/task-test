@@ -49,11 +49,11 @@ export const CapabilityCard: FC<CapabilityCardProps> = ({
     <div className="bg-background border border-border-default rounded-xl p-5 shadow-sm">
       <div className="flex justify-between items-start mb-3">
         <div className="text-[13px] font-bold text-accent">{displayId}</div>
-        {highlight && (
+        {/* {highlight && (
           <div className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-red-500 bg-red-500/10 border border-red-500/20 rounded">
             high
           </div>
-        )}
+        )} */}
       </div>
       <h3 className="text-[15px] font-bold text-text-primary mb-2 leading-tight">
         {title}
